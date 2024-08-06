@@ -1,6 +1,6 @@
 import { watchChanges } from './changeHandler.js';
-import { pushChanges } from './pushChanges.js';
-import { fetchChanges } from './pullChanges.js';
+import { startPushChanges  } from './pushChanges.js';
+import { pullChanges } from './pullChanges.js';
 import dotenv from 'dotenv';
 import './cleanOldChanges.js'; // Import the scheduled task to clean old changes
 
@@ -17,11 +17,11 @@ const main = async () => {
     console.log('Started watching changes');
 
     // Periodically push changes to the online server
-    setInterval(pushChanges, pushInterval);
+    setInterval(() => startPushChanges(), pushInterval); // 3 minutes
     console.log('Scheduled periodic push of changes');
 
     // Periodically pull changes from the online server
-    setInterval(fetchChanges, pullInterval);
+    setInterval(pullChanges, pullInterval);
     console.log('Scheduled periodic pull of changes');
   } catch (error) {
     console.error('Error in main function:', error);
