@@ -4,6 +4,7 @@
   "description": "Sync server for mondodb instances",
   "main": "index.js",
   "scripts": {
+    "once": "node src/app.js",
     "start": "nodemon src/app.js",
     "test": "npm run test"
   },
