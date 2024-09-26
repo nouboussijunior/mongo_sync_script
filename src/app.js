@@ -1,36 +1,41 @@
 import { watchChanges } from './changeHandler.js';
-import { initCronTasks, startPushChanges } from './pushChanges.js';
+// import { initCronTasks, startPushChanges } from './pushChanges.js';
+import { initCronTasks, pushChanges } from './pushChanges.js';
 import { startPullChanges } from './pullChanges.js';
 import dotenv from 'dotenv';
 import './cleanOldChanges.js'; // Import the scheduled task to clean old changes
 import { startServer } from './onlineServerHandler.js'; // Import the server handler
+import { createIndexes } from './db.js';
 
 dotenv.config();
 
 // Environment variables
-const pushInterval = parseInt(process.env.PUSH_INTERVAL, 10) || 180000; // 3 minutes
-const pullInterval = parseInt(process.env.PULL_INTERVAL, 10) || 240000; // 4 minutes
+const pushInterval = parseInt(process.env.PUSH_INTERVAL, 10) || 600000; // 10 minutes
+const pullInterval = parseInt(process.env.PULL_INTERVAL, 10) || 600000; // 10 minutes
 
 const main = async () => {
   try {
     // Start the online server
     await startServer();
+
+    await createIndexes();
     
     //Start Push Cron tasks
     initCronTasks();
     
     // Start watching changes in the local MongoDB collections
-    watchChanges();
+    // watchChanges();
+    setInterval(() => watchChanges(), pushInterval); // 10 minutes
     console.log('Started watching changes');
 
     // Periodically push changes to the online server
-    // setInterval(() => startPushChanges(), pushInterval); // 3 minutes
-    setInterval(() => startPushChanges(), pushInterval); // 3 minutes
+    setInterval(() => pushChanges(), pushInterval); // 3 minutes
     console.log('Scheduled periodic push of changes');
 
     // Periodically pull changes from the online server
     setInterval(() => startPullChanges(), pullInterval);
     console.log('Scheduled periodic pull of changes');
+    // setInterval(() => startPullChanges(), 4000);
   } catch (error) {
     console.error('Error in main function:', error);
   }
